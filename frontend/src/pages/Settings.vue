@@ -90,13 +90,99 @@
         </span>
       </div>
     </template>
+
+    <!-- Account / change password -->
+    <div class="mt-10 border-t border-gray-200 pt-8">
+      <h2 class="font-display text-lg font-bold tracking-tight">Change password</h2>
+      <p class="mt-1 text-sm text-gray-500">Update the password for your account.</p>
+
+      <div class="mt-4 max-w-sm space-y-3">
+        <div>
+          <label class="mb-1 block text-sm font-medium text-gray-700">Current password</label>
+          <input
+            v-model="pw.old_password"
+            type="password"
+            autocomplete="current-password"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+          />
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-gray-700">New password</label>
+          <input
+            v-model="pw.new_password"
+            type="password"
+            autocomplete="new-password"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+          />
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-gray-700">Confirm new password</label>
+          <input
+            v-model="pw.confirm"
+            type="password"
+            autocomplete="new-password"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+            @keyup.enter="changePassword"
+          />
+        </div>
+
+        <p v-if="pwError" class="text-sm text-red-600">{{ pwError }}</p>
+        <p v-if="pwSaved" class="text-sm text-green-600">Password updated.</p>
+
+        <button
+          class="rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-50"
+          :disabled="changePwResource.loading || !pw.old_password || !pw.new_password"
+          @click="changePassword"
+        >
+          {{ changePwResource.loading ? 'Updating…' : 'Update password' }}
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { reactive, ref, watch } from 'vue'
 import draggable from 'vuedraggable'
+import { createResource } from 'frappe-ui'
 import { navResource, saveNavResource } from '@/data/config'
+
+// ----- Change password -----
+const pw = reactive({ old_password: '', new_password: '', confirm: '' })
+const pwError = ref('')
+const pwSaved = ref(false)
+
+const changePwResource = createResource({
+  url: 'docflow.api.change_password',
+  makeParams() {
+    return { old_password: pw.old_password, new_password: pw.new_password }
+  },
+  onSuccess() {
+    pwSaved.value = true
+    pw.old_password = ''
+    pw.new_password = ''
+    pw.confirm = ''
+    setTimeout(() => (pwSaved.value = false), 3000)
+  },
+  onError(err) {
+    pwError.value =
+      err?.messages?.[0] || 'Could not change password. Check your current password.'
+  },
+})
+
+function changePassword() {
+  pwError.value = ''
+  pwSaved.value = false
+  if (pw.new_password !== pw.confirm) {
+    pwError.value = 'New passwords do not match.'
+    return
+  }
+  if (pw.new_password.length < 6) {
+    pwError.value = 'New password must be at least 6 characters.'
+    return
+  }
+  changePwResource.submit()
+}
 
 let uid = 0
 const local = ref([])

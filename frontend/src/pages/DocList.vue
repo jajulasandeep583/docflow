@@ -7,7 +7,13 @@
       >
         &larr;
       </button>
-      <h1 class="font-display text-xl font-bold tracking-tight">{{ doctype }}</h1>
+      <h1 class="flex-1 font-display text-xl font-bold tracking-tight">{{ doctype }}</h1>
+      <button
+        class="rounded-lg bg-gray-900 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-gray-800"
+        @click="router.push(`/new/${encodeURIComponent(doctype)}`)"
+      >
+        + New
+      </button>
     </div>
 
     <div class="mb-4">

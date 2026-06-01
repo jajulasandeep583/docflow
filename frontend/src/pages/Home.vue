@@ -93,8 +93,16 @@ function icon(item) {
     .toUpperCase()
 }
 
+// DocTypes that are nicer to browse as cards than as a flat list.
+const CARD_DOCTYPES = ['Contact']
+
 function open(item) {
-  router.push(`/list/${encodeURIComponent(item.doctype_name)}`)
+  const dt = item.doctype_name
+  if (CARD_DOCTYPES.includes(dt)) {
+    router.push(`/cards/${encodeURIComponent(dt)}`)
+  } else {
+    router.push(`/list/${encodeURIComponent(dt)}`)
+  }
 }
 
 // Per-DocType record counts for the subtitle.

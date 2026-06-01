@@ -7,12 +7,19 @@
       >
         &larr;
       </button>
-      <div class="min-w-0">
+      <div class="min-w-0 flex-1">
         <div class="text-xs uppercase tracking-wide text-gray-400">{{ doctype }}</div>
         <h1 class="truncate font-display text-xl font-bold tracking-tight">
           {{ title }}
         </h1>
       </div>
+      <button
+        v-if="!loading && !doc.error"
+        class="shrink-0 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-semibold text-gray-700 transition hover:border-gray-900 hover:bg-gray-900 hover:text-white"
+        @click="router.push(`/edit/${encodeURIComponent(doctype)}/${encodeURIComponent(name)}`)"
+      >
+        Edit
+      </button>
     </div>
 
     <!-- Loading -->

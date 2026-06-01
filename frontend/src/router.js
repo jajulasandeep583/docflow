@@ -14,9 +14,27 @@ const routes = [
     props: true,
   },
   {
+    path: '/cards/:doctype',
+    name: 'CardView',
+    component: () => import('@/pages/CardView.vue'),
+    props: true,
+  },
+  {
     path: '/view/:doctype/:name',
     name: 'DocDetail',
     component: () => import('@/pages/DocDetail.vue'),
+    props: true,
+  },
+  {
+    path: '/new/:doctype',
+    name: 'DocNew',
+    component: () => import('@/pages/DocForm.vue'),
+    props: true,
+  },
+  {
+    path: '/edit/:doctype/:name',
+    name: 'DocEdit',
+    component: () => import('@/pages/DocForm.vue'),
     props: true,
   },
   {
