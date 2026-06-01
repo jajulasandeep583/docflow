@@ -5,6 +5,7 @@ import { createResource } from 'frappe-ui'
 // logged-in user gets the same, centrally-managed list.
 export const navResource = createResource({
   url: 'docflow.api.get_nav',
+  method: 'GET',
   auto: true,
 })
 
@@ -19,6 +20,3 @@ export const saveNavResource = createResource({
   },
 })
 
-export function navItems() {
-  return navResource.data || []
-}

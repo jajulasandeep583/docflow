@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/assets/docflow/frontend/sw.js', { scope: '/assets/docflow/frontend/' })})}

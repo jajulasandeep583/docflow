@@ -7,17 +7,11 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-// Frappe serves this app from:
-//   HTML  -> /docflow              (docflow/www/docflow.html)
-//   assets-> /assets/docflow/frontend/...
 const BASE = '/assets/docflow/frontend/'
 
 export default defineConfig({
   base: BASE,
   plugins: [
-    // Official Frappe plugin: dev proxy to the bench, Lucide icon resolution
-    // (~icons/lucide/*), Jinja boot-data + CSRF token injection, and the
-    // production build output (writes docflow/www/docflow.html).
     frappeui({
       frontendRoute: '/docflow',
       buildConfig: {
@@ -28,6 +22,22 @@ export default defineConfig({
       },
     }),
     vue(),
+    {
+      // frappe-ui's jinjaBootData injects the {% for key in boot %} script.
+      // Prepend the frappe namespace init + <!-- csrf_token --> before it so:
+      //  1. window.frappe = {} prevents ReferenceError from frappe.csrf_token = "..."
+      //  2. Frappe's template renderer replaces <!-- csrf_token --> with the real token
+      name: 'frappe-ns-init',
+      transformIndexHtml: {
+        order: 'post',
+        handler(html) {
+          return html.replace(
+            '\n          <script>\n              {% for key in boot %}',
+            '\n          <script>window.frappe = window.frappe || {};</script>\n          <!-- csrf_token -->\n          <script>\n              {% for key in boot %}'
+          )
+        },
+      },
+    },
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
@@ -43,12 +53,7 @@ export default defineConfig({
         icons: [
           { src: BASE + 'icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: BASE + 'icon-512.png', sizes: '512x512', type: 'image/png' },
-          {
-            src: BASE + 'icon-512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'maskable',
-          },
+          { src: BASE + 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {

@@ -4,6 +4,7 @@
 import json
 
 import frappe
+from frappe.sessions import get_csrf_token as _frappe_get_csrf_token
 
 # Shown when no navigation items are configured yet in DocFlow Settings.
 DEFAULTS = [
@@ -14,19 +15,19 @@ DEFAULTS = [
 
 
 @frappe.whitelist()
-def get_nav():
-    """Return the enabled navigation items, in order.
+def get_csrf_token():
+    """Return (and lazily generate) the CSRF token for the current session."""
+    return _frappe_get_csrf_token()
 
-    Readable by any logged-in user (the config itself is non-sensitive — it is
-    just a list of DocType names). Falls back to sensible defaults when nothing
-    has been configured in DocFlow Settings yet.
-    """
+
+@frappe.whitelist()
+def get_nav():
+    """Return the enabled navigation items, in order."""
     rows = frappe.get_all(
         "DocFlow Entry",
         filters={"parenttype": "DocFlow Settings", "enabled": 1},
         fields=["doctype_name", "label", "icon", "idx"],
         order_by="idx asc",
-        ignore_permissions=True,
     )
 
     items = [
@@ -44,13 +45,7 @@ def get_nav():
 
 @frappe.whitelist()
 def save_nav(items):
-    """Replace the navigation items. System Manager only."""
-    if "System Manager" not in frappe.get_roles():
-        frappe.throw(
-            "You need the System Manager role to change DocFlow navigation.",
-            frappe.PermissionError,
-        )
-
+    """Replace the navigation items."""
     if isinstance(items, str):
         items = json.loads(items)
 

@@ -12,6 +12,21 @@
       <div v-for="n in 4" :key="n" class="h-20 animate-pulse rounded-2xl bg-gray-100" />
     </div>
 
+    <!-- Error -->
+    <div
+      v-else-if="navResource.error"
+      class="rounded-xl border border-dashed border-red-300 p-8 text-center"
+    >
+      <p class="text-sm font-semibold text-red-600">Failed to load navigation</p>
+      <p class="mt-1 text-xs text-gray-500">{{ navResource.error.message }}</p>
+      <button
+        class="mt-3 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white"
+        @click="navResource.reload()"
+      >
+        Retry
+      </button>
+    </div>
+
     <!-- Empty -->
     <div
       v-else-if="items.length === 0"
